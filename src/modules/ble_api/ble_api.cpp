@@ -20,7 +20,7 @@ public:
 };
 
 void BLE_API::setup() {
-    NimBLEDevice::init("Bruce");
+    NimBLEDevice::init("Caly");
     NimBLEDevice::setPower(ESP_PWR_LVL_P9); // 9 dBm, tweak if you want
 
     pServer = NimBLEDevice::createServer();
@@ -33,7 +33,7 @@ void BLE_API::setup() {
 
     BLEAdvertising *pAdvertising = pServer->getAdvertising();
     pAdvertising->enableScanResponse(false); // Save some battery
-    pAdvertising->setName("Bruc");           // Bruce is too long for adv packet len
+    pAdvertising->setName("Caly");           // CalyStack might be too long? Keeping it short just in case
     pAdvertising->start();
 }
 

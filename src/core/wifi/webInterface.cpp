@@ -24,7 +24,7 @@ const int default_webserverporthttp = 80;
 IPAddress AP_GATEWAY(172, 0, 0, 1); // Gateway
 
 AsyncWebServer *server = nullptr; // initialise webserver
-const char *host = "bruce";
+const char *host = "caly";
 String uploadFolder = "";
 static bool mdnsRunning = false;
 
@@ -60,16 +60,16 @@ void loopOptionsWebUi() {
     if (isWebUIActive) {
         bool opt = WiFi.getMode() - 1;
         options = {
-            {"Stop WebUI", stopWebUi},
-            {"WebUi screen", lambdaHelper(startWebUi, opt)}
+            {"Parar WebUI", stopWebUi},
+            {"Tela do WebUI", lambdaHelper(startWebUi, opt)}
         };
         addOptionToMainMenu();
         loopOptions(options);
         return;
     }
     options = {
-        {"my Network", lambdaHelper(startWebUi, false)},
-        {"AP mode",    lambdaHelper(startWebUi, true) },
+        {"Minha rede", lambdaHelper(startWebUi, false)},
+        {"Modo AP",    lambdaHelper(startWebUi, true) },
     };
 
     loopOptions(options);
@@ -234,7 +234,7 @@ void handleUpload(
     }
 }
 
-void notFound(AsyncWebServerRequest *request) { request->send(404, "text/plain", "Nothing in here Sharky"); }
+void notFound(AsyncWebServerRequest *request) { request->send(404, "text/plain", "Nada por aqui, Sharky"); }
 
 /**********************************************************************
 **  Function: drawWebUiScreen
@@ -246,16 +246,16 @@ void drawWebUiScreen(bool mode_ap) {
     tft.drawRoundRect(5, 5, tftWidth - 10, tftHeight - 10, 5, ALCOLOR);
     if (mode_ap) {
         setTftDisplay(0, 0, bruceConfig.bgColor, FM);
-        tft.drawCentreString("BruceNet/brucenet", tftWidth / 2, 7, 1);
+        tft.drawCentreString("CalyNet/caly", tftWidth / 2, 7, 1);
     }
     setTftDisplay(0, 0, ALCOLOR, FM);
-    tft.drawCentreString("BRUCE WebUI", tftWidth / 2, 27, 1);
+    tft.drawCentreString("CALY WebUI", tftWidth / 2, 27, 1);
     String txt;
     if (!mode_ap) txt = WiFi.localIP().toString();
     else txt = WiFi.softAPIP().toString();
     tft.setTextColor(bruceConfig.priColor);
 
-    tft.drawCentreString("http://bruce.local", tftWidth / 2, 45, 1);
+    tft.drawCentreString("http://caly.local", tftWidth / 2, 45, 1);
     setTftDisplay(7, 67);
 
     tft.setTextSize(FM);
@@ -268,7 +268,7 @@ void drawWebUiScreen(bool mode_ap) {
     tft.setCursor(7, tft.getCursorY());
     tft.setTextColor(TFT_RED);
     tft.setTextSize(FP);
-    tft.drawCentreString("press Esc to stop", tftWidth / 2, tftHeight - 2 * LH * FP, 1);
+    tft.drawCentreString("Pressione Esc para parar", tftWidth / 2, tftHeight - 2 * LH * FP, 1);
 
 #if defined(HAS_TOUCH)
     TouchFooter();
@@ -720,6 +720,10 @@ void startWebUi(bool mode_ap) {
         keepWifiConnected = true;
     }
 
+    if (bruceConfig.webUI.pwd == "bruce") {
+        bruceConfig.setWebUICreds(bruceConfig.webUI.user, "caly");
+    }
+
     // configure web server
 
     if (!server) {
@@ -747,8 +751,8 @@ void startWebUi(bool mode_ap) {
     bool closeServer = false;
 
     options.clear();
-    options.emplace_back("Run in background", []() {});
-    options.emplace_back("Exit", [&closeServer]() { closeServer = true; });
+    options.emplace_back("Executar em segundo plano", []() {});
+    options.emplace_back("Sair", [&closeServer]() { closeServer = true; });
 
     loopOptions(options);
 

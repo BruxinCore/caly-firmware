@@ -67,6 +67,10 @@ JsonDocument BruceConfig::toJson() const {
     setting["badUSBBLEKeyboardLayout"] = badUSBBLEKeyboardLayout;
     setting["badUSBBLEKeyDelay"] = badUSBBLEKeyDelay;
     setting["badUSBBLEShowOutput"] = badUSBBLEShowOutput;
+    setting["powerSaveEnabled"] = powerSaveEnabled;
+    setting["modeProfile"] = modeProfile;
+    setting["modeActive"] = modeActive;
+    setting["language"] = language;
 
     JsonArray dm = setting["disabledMenus"].to<JsonArray>();
     for (int i = 0; i < disabledMenus.size(); i++) { dm.add(disabledMenus[i]); }
@@ -380,6 +384,30 @@ void BruceConfig::fromFile(bool checkFS) {
         count++;
         log_e("Fail");
     }
+    if (!setting["powerSaveEnabled"].isNull()) {
+        powerSaveEnabled = setting["powerSaveEnabled"].as<int>();
+    } else {
+        count++;
+        log_e("Fail");
+    }
+    if (!setting["modeProfile"].isNull()) {
+        modeProfile = setting["modeProfile"].as<int>();
+    } else {
+        count++;
+        log_e("Fail");
+    }
+    if (!setting["modeActive"].isNull()) {
+        modeActive = setting["modeActive"].as<int>();
+    } else {
+        count++;
+        log_e("Fail");
+    }
+    if (!setting["language"].isNull()) {
+        language = setting["language"].as<int>();
+    } else {
+        count++;
+        log_e("Fail");
+    }
 
     if (!setting["disabledMenus"].isNull()) {
         disabledMenus.clear();
@@ -464,6 +492,10 @@ void BruceConfig::validateConfig() {
     validateEvilEndpointCreds();
     validateEvilEndpointSsid();
     validateEvilPasswordMode();
+    validatePowerSaveEnabledValue();
+    validateModeProfileValue();
+    validateModeActiveValue();
+    validateLanguage();
 }
 
 void BruceConfig::setUiColor(uint16_t primary, uint16_t *secondary, uint16_t *background) {
@@ -754,13 +786,46 @@ void BruceConfig::setBadUSBBLEKeyDelay(uint16_t value) {
 }
 
 void BruceConfig::validateBadUSBBLEKeyDelay() {
-    if (badUSBBLEKeyDelay < 0) badUSBBLEKeyDelay = 0;
     if (badUSBBLEKeyDelay > 500) badUSBBLEKeyDelay = 500;
 }
 
 void BruceConfig::setBadUSBBLEShowOutput(bool value) {
     badUSBBLEShowOutput = value;
     saveFile();
+}
+void BruceConfig::setPowerSaveEnabled(int value) {
+    powerSaveEnabled = value;
+    validatePowerSaveEnabledValue();
+    saveFile();
+}
+void BruceConfig::validatePowerSaveEnabledValue() {
+    if (powerSaveEnabled > 1) powerSaveEnabled = 1;
+    if (powerSaveEnabled < 0) powerSaveEnabled = 0;
+}
+void BruceConfig::setModeProfile(int value) {
+    modeProfile = value;
+    validateModeProfileValue();
+    saveFile();
+}
+void BruceConfig::validateModeProfileValue() {
+    if (modeProfile < MODE_NONE || modeProfile > MODE_AGRESSIVO) modeProfile = MODE_NONE;
+}
+void BruceConfig::setModeActive(int value) {
+    modeActive = value;
+    validateModeActiveValue();
+    saveFile();
+}
+void BruceConfig::validateModeActiveValue() {
+    if (modeActive > 1) modeActive = 1;
+    if (modeActive < 0) modeActive = 0;
+}
+void BruceConfig::setLanguage(int value) {
+    language = value;
+    validateLanguage();
+    saveFile();
+}
+void BruceConfig::validateLanguage() {
+    if (language < 0 || language > 1) language = 0;
 }
 void BruceConfig::addMifareKey(String value) { MifareKeysManager::addKey(mifareKeys, value); }
 

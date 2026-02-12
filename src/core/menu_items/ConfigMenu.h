@@ -20,7 +20,9 @@ private:
     void systemMenu(void);
     void advancedMenu(void);
     void powerMenu(void);
+    void modesMenu(void);
     void devMenu(void);
+    void languageMenu(void);
 
     // Helper methods for complex operations
     void switchToUSBSerial(void);

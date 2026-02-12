@@ -1,6 +1,7 @@
 #include "ble_common.h"
 #include "core/mykeyboard.h"
 #include "core/utils.h"
+#include <WiFi.h>
 #include "esp_mac.h"
 #define SERVICE_UUID "1bc68b2a-f3e3-11e9-81b4-2a2ae2dbcce4"
 #define CHARACTERISTIC_RX_UUID "1bc68da0-f3e3-11e9-81b4-2a2ae2dbcce4"
@@ -92,11 +93,18 @@ void ble_scan_setup() {
     pBLEScan->setAdvertisedDeviceCallbacks(new AdvertisedDeviceCallbacks());
 #endif
 
-    // Active scan uses more power, but get results faster
     pBLEScan->setActiveScan(true);
-    pBLEScan->setInterval(SCAN_INT);
-    // Less or equal setInterval value
-    pBLEScan->setWindow(SCAN_WINDOW);
+    int interval = SCAN_INT;
+    int window = SCAN_WINDOW;
+    if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO) {
+        interval = 80;
+        window = 79;
+    } else if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_BALANCEADO) {
+        interval = 90;
+        window = 89;
+    }
+    pBLEScan->setInterval(interval);
+    pBLEScan->setWindow(window);
 
     // Bluetooth MAC Address
 #ifdef NIMBLE_V2_PLUS
@@ -119,6 +127,11 @@ void ble_scan_setup() {
 }
 
 void ble_scan() {
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Economia ON - Desative para usar BLE", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(600 / portTICK_PERIOD_MS);
+        return;
+    }
     displayTextLine("Scanning..");
 
     options = {};
@@ -158,6 +171,11 @@ void ble_scan() {
 
     // Delete results fromBLEScan buffer to release memory
     pBLEScan->clearResults();
+#if defined(CONFIG_IDF_TARGET_ESP32C5)
+    esp_bt_controller_deinit();
+#else
+    BLEDevice::deinit();
+#endif
 }
 
 bool initBLEServer() {

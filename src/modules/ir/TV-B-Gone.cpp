@@ -18,6 +18,7 @@ Distributed under Creative Commons 2.5 -- Attribution & Share Alike
 #include "core/settings.h"
 #include "core/utils.h"
 #include "ir_utils.h"
+#include <vector>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
@@ -176,15 +177,30 @@ void StartTvBGone() {
         if (region) num_codes = num_NAcodes;
         else num_codes = num_EUcodes;
 
-        bool endingEarly = false; // will be set to true if the user presses the button during code-sending
+        bool endingEarly = false;
+
+        const IrCode *const *arr = region == NA ? NApowerCodes : EUpowerCodes;
+        std::vector<uint16_t> first;
+        std::vector<uint16_t> rest;
+        first.reserve(num_codes);
+        rest.reserve(num_codes);
+        for (uint16_t idx = 0; idx < num_codes; idx++) {
+            uint8_t f = arr[idx]->timer_val;
+            if (f == 38) first.push_back(idx);
+            else rest.push_back(idx);
+        }
+        std::vector<uint16_t> order;
+        order.reserve(num_codes);
+        order.insert(order.end(), first.begin(), first.end());
+        order.insert(order.end(), rest.begin(), rest.end());
 
         check(SelPress);
-        for (i = 0; i < num_codes; i++) {
+        for (uint16_t oi = 0; oi < order.size(); oi++) {
+            i = oi;
             // Lock only during IR transmission - allows button checks to run while waiting
             lock_ir_tx();
             
-            if (region == NA) powerCode = NApowerCodes[i];
-            else powerCode = EUpowerCodes[i];
+            powerCode = arr[order[oi]];
 
             const uint8_t freq = powerCode->timer_val;
             const uint8_t numpairs = powerCode->numpairs;
@@ -210,8 +226,7 @@ void StartTvBGone() {
             unlock_ir_tx();  // Release mutex immediately so other tasks can run
             bitsleft_r = 0;
             
-            // Wait 205ms between codes using NOP delays (keeps timing precise)
-            delay_ten_us(20500);
+            delay_ten_us(12000);
 
             // Check for user input - this can run freely since mutex is unlocked
             if (check(SelPress)) // Pause TV-B-Gone

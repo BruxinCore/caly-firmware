@@ -10,6 +10,7 @@
 #include <vector>
 
 enum EvilPortalPasswordMode { FULL_PASSWORD = 0, FIRST_LAST_CHAR = 1, HIDE_PASSWORD = 2, SAVE_LENGTH = 3 };
+enum ModeProfile { MODE_NONE = 0, MODE_ECONOMIA = 1, MODE_BALANCEADO = 2, MODE_AGRESSIVO = 3 };
 
 class BruceConfig : public BruceTheme {
 public:
@@ -50,7 +51,7 @@ public:
 #ifdef HAS_RGB_LED
     // Led
     int ledBright = 50;
-    uint32_t ledColor = 0x960064;
+    uint32_t ledColor = 0xA020F0;
     int ledBlinkEnabled = 1;
     int ledEffect = 0;
     int ledEffectSpeed = 5;
@@ -58,9 +59,9 @@ public:
 #endif
 
     // Wifi
-    Credential webUI = {"admin", "bruce"};
+    Credential webUI = {"admin", "caly"};
     std::vector<String> webUISessions = {}; // FIFO queue of session tokens
-    WiFiCredential wifiAp = {"BruceNet", "brucenet"};
+    WiFiCredential wifiAp = {"CalyNet", "calystack"};
     std::map<String, String> wifi = {};
     std::set<String> evilWifiNames = {};
     String wifiMAC = ""; //@IncursioHack
@@ -87,14 +88,20 @@ public:
     uint16_t badUSBBLEKeyDelay = 10;
     bool badUSBBLEShowOutput = true;
 
+    int powerSaveEnabled = 0;
+    int modeProfile = MODE_NONE;
+    int modeActive = 0;
+
     std::vector<String> disabledMenus = {};
 
     std::vector<QrCodeEntry> qrCodes = {
-        {"Bruce AP",   "WIFI:T:WPA;S:BruceNet;P:brucenet;;"},
+        {"Caly AP",   "WIFI:T:WPA;S:CalyNet;P:calystack;;"},
         {"Bruce Wiki", "https://github.com/pr3y/Bruce/wiki"},
         {"Bruce Site", "https://bruce.computer"            },
         {"Rickroll",   "https://youtu.be/dQw4w9WgXcQ"      }
     };
+
+    int language = 1;
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Constructor
@@ -185,10 +192,19 @@ public:
     void setBadUSBBLEShowOutput(bool value);
     void addDisabledMenu(String value);
     // TODO: removeDisabledMenu(String value);
+    void setPowerSaveEnabled(int value);
+    void validatePowerSaveEnabledValue();
+    void setModeProfile(int value);
+    void validateModeProfileValue();
+    void setModeActive(int value);
+    void validateModeActiveValue();
 
     void addWebUISession(const String &token);
     void removeWebUISession(const String &token);
     bool isValidWebUISession(const String &token);
+
+    void setLanguage(int value);
+    void validateLanguage();
 };
 
 #endif

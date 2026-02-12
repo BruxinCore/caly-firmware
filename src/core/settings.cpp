@@ -965,23 +965,38 @@ void runClockLoop(bool showMenuHint) {
 #endif
             Serial.print("Current time: ");
             Serial.println(timeStr);
-            tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
-            tft.drawRect(
-                BORDER_PAD_X,
-                BORDER_PAD_X,
-                tftWidth - 2 * BORDER_PAD_X,
-                tftHeight - 2 * BORDER_PAD_X,
-                bruceConfig.priColor
-            );
+            String hhmm = String(timeStr).substring(0, 5);
             uint8_t f_size = 4;
             for (uint8_t i = 4; i > 0; i--) {
-                if (i * LW * strlen(timeStr) < (tftWidth - BORDER_PAD_X * 2)) {
+                if (i * LW * hhmm.length() < (tftWidth - BORDER_PAD_X * 2)) {
                     f_size = i;
                     break;
                 }
             }
+            int text_w = LW * f_size * hhmm.length();
+            int text_h = LH * f_size;
+            int pad_x = 8;
+            int pad_y = 4;
+            int rect_w = text_w + 2 * pad_x;
+            int rect_h = text_h + 2 * pad_y;
+            int rect_x = tftWidth / 2 - rect_w / 2;
+            int rect_y = tftHeight / 2 - 13 - pad_y;
+            uint16_t pri = bruceConfig.priColor;
+            int R5 = (pri >> 11) & 0x1F;
+            int G6 = (pri >> 5) & 0x3F;
+            int B5 = pri & 0x1F;
+            int r = R5 * 255 / 31;
+            int g = G6 * 255 / 63;
+            int b = B5 * 255 / 31;
+            int r2 = r / 2;
+            int g2 = g / 2;
+            int b2 = b / 2;
+            uint16_t darker = tft.color565(r2, g2, b2);
+            tft.fillRoundRect(rect_x, rect_y, rect_w, rect_h, 6, darker);
+            tft.setTextColor(bruceConfig.priColor, darker);
             tft.setTextSize(f_size);
-            tft.drawCentreString(timeStr, tftWidth / 2, tftHeight / 2 - 13, 1);
+            tft.drawCentreString(hhmm.c_str(), tftWidth / 2, tftHeight / 2 - 13, 1);
+            tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
 
             // "OK to show menu" hint management
             if (hintVisible && (millis() - hintStartTime < 5000)) {

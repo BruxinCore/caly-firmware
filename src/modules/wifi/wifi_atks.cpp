@@ -183,6 +183,11 @@ void wifi_atk_info(String tssid, String mac, uint8_t channel) {
 ** @brief: Sets the Minimum Wifi parameters to WiFi Attacks
 ***************************************************************************************/
 bool wifi_atk_setWifi() {
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Power Save ON - Desative para usar Wi-Fi", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(pdMS_TO_TICKS(600));
+        return false;
+    }
     if (WiFi.getMode() != WIFI_MODE_APSTA) {
         if (!WiFi.mode(WIFI_MODE_APSTA)) {
             displayError("Failed starting WIFI", true);

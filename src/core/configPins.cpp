@@ -435,7 +435,7 @@ void BruceConfigPins::setIrTxPin(int value) {
 }
 
 void BruceConfigPins::setIrTxRepeats(uint8_t value) {
-    irTxRepeats = value;
+    irTxRepeats = value > 10 ? 10 : value;
     saveFile();
 }
 

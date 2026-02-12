@@ -1,0 +1,12 @@
+{
+  "priColor": "B81F",
+  "secColor": "901A",
+  "bgColor": "0000",
+  "border": 1,
+  "label": 1,
+  "ledBright": 50,
+  "ledColor": "A020F0",
+  "ledEffect": 0,
+  "ledEffectSpeed": 5,
+  "ledEffectDirection": 1
+}

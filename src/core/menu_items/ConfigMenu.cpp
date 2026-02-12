@@ -5,6 +5,7 @@
 #include "core/settings.h"
 #include "core/utils.h"
 #include "core/wifi/wifi_common.h"
+#include "core/powerSave.h"
 #ifdef HAS_RGB_LED
 #include "core/led_control.h"
 #endif
@@ -29,6 +30,7 @@ void ConfigMenu::optionsMenu() {
 #endif
             {"Audio Config",  [this]() { audioMenu(); }    },
             {"System Config", [this]() { systemMenu(); }   },
+            {"Modos",         [this]() { modesMenu(); }    },
             {"Power",         [this]() { powerMenu(); }    },
         };
 #if !defined(LITE_VERSION)
@@ -154,6 +156,7 @@ void ConfigMenu::audioMenu() {
 void ConfigMenu::systemMenu() {
     while (true) {
         std::vector<Option> localOptions = {
+            {"Language", [this]() { languageMenu(); }},
             {String("InstaBoot: ") + (bruceConfig.instantBoot ? "ON" : "OFF"),
              [this]() {
                  // Toggle InstaBoot setting
@@ -229,7 +232,7 @@ void ConfigMenu::advancedMenu() {
 void ConfigMenu::powerMenu() {
     while (true) {
         std::vector<Option> localOptions = {
-            {"Deep Sleep", goToDeepSleep          },
+            {"Deep Sleep", []() { prepareForDeepSleep(); goToDeepSleep(); } },
             {"Sleep",      setSleepMode           },
             {"Restart",    []() { ESP.restart(); }},
             {"Power Off",
@@ -248,6 +251,65 @@ void ConfigMenu::powerMenu() {
         // Exit to Config menu
         if (selected == -1 || selected == localOptions.size() - 1) { return; }
         // Menu rebuilds after each action
+    }
+}
+
+void ConfigMenu::modesMenu() {
+    while (true) {
+        bool ecoOn = bruceConfig.modeActive && bruceConfig.modeProfile == MODE_ECONOMIA;
+        bool balOn = bruceConfig.modeActive && bruceConfig.modeProfile == MODE_BALANCEADO;
+        bool agrOn = bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO;
+        std::vector<Option> localOptions = {
+            {String("Economia: ") + (ecoOn ? "LIG" : "DES"),
+             [this, ecoOn]() {
+                 if (!ecoOn && bruceConfig.modeActive && bruceConfig.modeProfile != MODE_ECONOMIA) {
+                     displayError("Desative o modo atual antes de trocar", true);
+                     return;
+                 }
+                 bool newOn = !ecoOn;
+                 bruceConfig.setModeProfile(MODE_ECONOMIA);
+                 bruceConfig.setModeActive(newOn);
+                 if (newOn) {
+                     powerSaveOn();
+                     displayRedStripe("Economia LIG", bruceConfig.priColor, bruceConfig.bgColor);
+                 } else {
+                     powerSaveOff();
+                     displayRedStripe("Economia DES", bruceConfig.priColor, bruceConfig.bgColor);
+                 }
+                 vTaskDelay(pdMS_TO_TICKS(600));
+             }},
+            {String("Balanceado: ") + (balOn ? "LIG" : "DES"),
+             [this, balOn]() {
+                 if (!balOn && bruceConfig.modeActive && bruceConfig.modeProfile != MODE_BALANCEADO) {
+                     displayError("Desative o modo atual antes de trocar", true);
+                     return;
+                 }
+                 bool newOn = !balOn;
+                 bruceConfig.setModeProfile(MODE_BALANCEADO);
+                 bruceConfig.setModeActive(newOn);
+                 if (newOn && bruceConfig.powerSaveEnabled) powerSaveOff();
+                 if (newOn) displayRedStripe("Balanceado LIG", bruceConfig.priColor, bruceConfig.bgColor);
+                 else displayRedStripe("Balanceado DES", bruceConfig.priColor, bruceConfig.bgColor);
+                 vTaskDelay(pdMS_TO_TICKS(600));
+             }},
+            {String("Agressivo: ") + (agrOn ? "LIG" : "DES"),
+             [this, agrOn]() {
+                 if (!agrOn && bruceConfig.modeActive && bruceConfig.modeProfile != MODE_AGRESSIVO) {
+                     displayError("Desative o modo atual antes de trocar", true);
+                     return;
+                 }
+                 bool newOn = !agrOn;
+                 bruceConfig.setModeProfile(MODE_AGRESSIVO);
+                 bruceConfig.setModeActive(newOn);
+                 if (newOn && bruceConfig.powerSaveEnabled) powerSaveOff();
+                 if (newOn) displayRedStripe("Agressivo LIG", bruceConfig.priColor, bruceConfig.bgColor);
+                 else displayRedStripe("Agressivo DES", bruceConfig.priColor, bruceConfig.bgColor);
+                 vTaskDelay(pdMS_TO_TICKS(600));
+             }},
+            {"Back", []() {}},
+        };
+        int selected = loopOptions(localOptions, MENU_TYPE_SUBMENU, "Modos");
+        if (selected == -1 || selected == localOptions.size() - 1) { return; }
     }
 }
 
@@ -286,6 +348,18 @@ void ConfigMenu::devMenu() {
         // Exit to Config menu on Back or ESC
         if (selected == -1 || selected == localOptions.size() - 1) { return; }
         // Menu rebuilds after each action
+    }
+}
+
+void ConfigMenu::languageMenu() {
+    while (true) {
+        std::vector<Option> localOptions = {
+            {"English", []() { bruceConfig.setLanguage(0); }},
+            {"Português (BR)", []() { bruceConfig.setLanguage(1); }},
+            {"Back", []() {}},
+        };
+        int selected = loopOptions(localOptions, MENU_TYPE_SUBMENU, "Language");
+        if (selected == -1 || selected == localOptions.size() - 1) { return; }
     }
 }
 

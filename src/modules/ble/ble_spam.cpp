@@ -237,7 +237,11 @@ BLEAdvertisementData GetUniversalAdvertisementData(EBLEPayloadType Type) {
 }
 
 void executeSpam(EBLEPayloadType type) {
-    
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Economia ON - Desative para usar BLE", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(600 / portTICK_PERIOD_MS);
+        return;
+    }
     uint8_t macAddr[6];
     generateRandomMac(macAddr);
     esp_iface_mac_addr_set(macAddr, ESP_MAC_BT);
@@ -299,6 +303,11 @@ void executeCustomSpam(String spamName) {
 }
 
 void ibeacon(const char *DeviceName, const char *BEACON_UUID, int ManufacturerId) {
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Economia ON - Desative para usar BLE", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(600 / portTICK_PERIOD_MS);
+        return;
+    }
     uint8_t macAddr[6];
     generateRandomMac(macAddr);
     esp_iface_mac_addr_set(macAddr, ESP_MAC_BT);
@@ -346,20 +355,20 @@ void aj_adv(int ble_choice) {
     int count = 0;
     String spamName = "";
     if (ble_choice == 6) { spamName = keyboard("", 10, "Name to spam"); }
-    
+
     if (ble_choice == 5) {
         displayTextLine("Spam All Sequential");
         padprintln("");
         padprintln("Press ESC to stop");
-        
+
         while (1) {
             if (check(EscPress)) {
                 returnToMenu = true;
                 break;
             }
-            
+
             int protocol = count % 7;
-            
+
             switch(protocol) {
                 case 0:
                     displayTextLine("Android " + String(count));
@@ -390,15 +399,15 @@ void aj_adv(int ble_choice) {
                     executeSpam(AppleJuice);
                     break;
             }
-            
+
             count++;
-            
+
             if (check(EscPress)) {
                 returnToMenu = true;
                 break;
             }
         }
-        
+
         BLEDevice::init("");
         vTaskDelay(100 / portTICK_PERIOD_MS);
         pAdvertising = nullptr;
@@ -410,7 +419,7 @@ void aj_adv(int ble_choice) {
 #endif
         return;
     }
-    
+
     while (1) {
         switch (ble_choice) {
             case 0:
@@ -464,13 +473,13 @@ void aj_adv(int ble_choice) {
 
 void legacySubMenu() {
     std::vector<Option> legacyOptions;
-    
+
     legacyOptions.push_back({"SourApple", []() { aj_adv(7); }});
     legacyOptions.push_back({"AppleJuice", []() { aj_adv(8); }});
-    
-    
+
+
     legacyOptions.push_back({"Back", []() { returnToMenu = true; }});
-    
+
     loopOptions(legacyOptions, MENU_TYPE_SUBMENU, "Apple Spam (Legacy)");
 }
 void spamMenu() {
@@ -484,6 +493,6 @@ void spamMenu() {
     options.push_back({"Spam All", lambdaHelper(aj_adv, 5)});
     options.push_back({"Spam Custom", lambdaHelper(aj_adv, 6)});
     options.push_back({"Back", []() { returnToMenu = true; }});
-     
+
     loopOptions(options, MENU_TYPE_SUBMENU, "Bluetooth Spam");
 }

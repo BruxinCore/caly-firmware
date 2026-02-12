@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caly Web Flasher</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b0b12;color:#fff;overflow:hidden}
+.bg{position:fixed;inset:0;background:radial-gradient(1200px 600px at 20% 10%,#6d28d9 0%,transparent 60%),radial-gradient(900px 500px at 85% 80%,#7c3aed 0%,transparent 60%),linear-gradient(135deg,#0b0b12 0%,#111122 100%);filter:saturate(1.2)}
+.wrap{position:relative;z-index:2;min-height:100%;display:flex;align-items:center;justify-content:center;padding:40px}
+.card{width:100%;max-width:860px;background:rgba(255,255,255,.06);backdrop-filter:saturate(1.2) blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 30px 60px rgba(0,0,0,.35);overflow:hidden}
+.hero{padding:36px 40px 20px;display:flex;align-items:center;gap:20px}
+.logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#22d3ee);box-shadow:0 10px 20px rgba(139,92,246,.4)}
+.titles{flex:1}
+.brand{font-weight:800;font-size:28px;letter-spacing:.2px}
+.subtitle{opacity:.8;margin-top:6px}
+.content{padding:20px 40px 30px;display:grid;grid-template-columns:1fr 360px;gap:24px}
+.text{line-height:1.6;opacity:.95}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:999px;font-size:12px}
+.cta{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.18);border-radius:16px;padding:22px}
+.btn{display:inline-block;padding:14px 18px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#22d3ee);color:#0b0b12;font-weight:700;text-decoration:none;box-shadow:0 10px 20px rgba(139,92,246,.4)}
+.legal{padding:22px 40px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.legal small{opacity:.75}
+.credits{opacity:.9}
+.install-note{font-size:12px;opacity:.7}
+@media(max-width:900px){.content{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="card">
+    <div class="hero">
+      <div class="logo"></div>
+      <div class="titles">
+        <div class="brand">Caly</div>
+        <div class="subtitle">Instalador via navegador para dispositivos ESP32</div>
+      </div>
+      <div class="pill">Animações GSAP</div>
+    </div>
+    <div class="content">
+      <div class="text">
+        <p>Conecte seu dispositivo ESP32 ao computador, clique em Instalar e selecione a porta. O processo roda direto no navegador usando Web Serial/USB.</p>
+        <p>Depois de instalar, reinicie o dispositivo. Se precisar atualizar novamente, repita o processo aqui.</p>
+        <p class="install-note">Se o botão não aparecer, use Chrome/Edge no desktop.</p>
+      </div>
+      <div class="cta">
+        <esp-web-install-button manifest="./manifest.json"></esp-web-install-button>
+        <a class="btn" href="#" onclick="document.querySelector('esp-web-install-button').click()">Instalar</a>
+      </div>
+    </div>
+    <div class="legal">
+      <small>Baseado em Bruce. Licença AGPL-3.0. Veja LICENSE.</small>
+      <div class="credits">© Caly</div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import "https://unpkg.com/esp-web-tools@9.3.0/dist/web/install-button.js?module";
+import { gsap } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js";
+gsap.from(".card",{duration:1,opacity:0,y:10,ease:"power2.out"});
+gsap.from(".logo",{duration:.8,scale:.8,opacity:0,delay:.2,ease:"back.out(2)"});
+gsap.from(".brand",{duration:.8,y:-8,opacity:0,delay:.3});
+gsap.from(".subtitle",{duration:.8,y:-6,opacity:0,delay:.35});
+gsap.from(".pill",{duration:.8,y:-6,opacity:0,delay:.4});
+gsap.from(".text",{duration:.8,y:8,opacity:0,delay:.45});
+gsap.from(".cta",{duration:.8,scale:.96,opacity:0,delay:.5});
+</script>
+</body>
+</html>

@@ -219,6 +219,7 @@ void EvilPortal::loop() {
             verifyPass = false;
         }
     }
+    wifiDisconnect();
 }
 
 void EvilPortal::drawScreen() {

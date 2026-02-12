@@ -2,6 +2,7 @@
 #define __MENU_ITEM_INTERFACE_H__
 
 #include "core/display.h"
+#include "core/utils.h"
 #include <globals.h>
 
 class MenuItemInterface {
@@ -102,7 +103,8 @@ public:
         tft.drawPixel(0, 0, 0);
         tft.fillRect(arrowAreaX, titleY, tftWidth - 2 * arrowAreaX, LH * FM, bruceConfig.bgColor);
         int nchars = (tftWidth - 16) / (LW * FM);
-        tft.drawCentreString(getName().substring(0, nchars), iconCenterX, titleY, 1);
+        String title = tr(getName());
+        tft.drawCentreString(title.substring(0, nchars), iconCenterX, titleY, 1);
     }
 
 protected:

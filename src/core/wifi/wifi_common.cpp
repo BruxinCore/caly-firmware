@@ -128,6 +128,12 @@ void wifiDisconnect() {
 }
 
 bool wifiConnectMenu(wifi_mode_t mode) {
+    ensureWifiPlatform();
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Power Save ON - Desative para usar Wi-Fi", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(600 / portTICK_PERIOD_MS);
+        return false;
+    }
     if (WiFi.isConnected()) return false; // safeguard
 
     switch (mode) {
@@ -246,6 +252,7 @@ void wifiConnectTask(void *pvParameters) {
 String checkMAC() { return String(WiFi.macAddress()); }
 
 bool wifiConnecttoKnownNet(void) {
+    ensureWifiPlatform();
     if (WiFi.isConnected()) return true; // safeguard
     bool result = false;
     int nets;

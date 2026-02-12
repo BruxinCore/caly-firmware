@@ -15,4 +15,6 @@ void i2c_bulk_write(TwoWire *wire, uint8_t addr, const uint8_t *bulk_data);
 void printMemoryUsage(const char *msg = "");
 String repeatString(int length, String character);
 String formatBytes(uint64_t bytes);
+String tr(const String &s);
+String tr(const char *s);
 #endif

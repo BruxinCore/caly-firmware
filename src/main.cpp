@@ -232,13 +232,92 @@ void boot_screen() {
     tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
     tft.setTextSize(FM);
     tft.drawPixel(0, 0, bruceConfig.bgColor);
-    tft.drawCentreString("Bruce", tftWidth / 2, 10, 1);
+    tft.drawCentreString("Caly", tftWidth / 2, 10, 1);
     tft.setTextSize(FP);
     tft.drawCentreString(BRUCE_VERSION, tftWidth / 2, 25, 1);
     tft.setTextSize(FM);
     tft.drawCentreString(
         "PREDATORY FIRMWARE", tftWidth / 2, tftHeight + 2, 1
     ); // will draw outside the screen on non touch devices
+}
+
+/*********************************************************************
+ **  Function: drawCalyAsciiArt
+ *********************************************************************/
+void drawCalyAsciiArt() {
+    const char *art[] = {
+        "                                                                                 ",
+        "                                                                                 ",
+        "                                                                                 ",
+        "                                                                                 ",
+        "                                             @@                                  ",
+        "                                           @#:-@                                 ",
+        "                                         @@+:.=@                                 ",
+        "                                      @@#=:..-@@                                 ",
+        "                                    @@*-::-.:*@                                  ",
+        "                                  @@#-.:#*.:-@                                   ",
+        "                                 @@-..+@*..+@                                    ",
+        "                               @@:..-@@@:..+@                                    ",
+        "                             @@-..:#@  @%:.*@                                    ",
+        "                            @@:.:+@@    @+.*@                                    ",
+        "                            #:.:%@      @+:+@                                    ",
+        "                            @%-.:+@@    @*:+@                                    ",
+        "               @#+@@          @@=:.-%@  @#:=@               @@#+@                ",
+        "               #-::-%@          @@#:.=@@@@:+@            @@#-.--@                ",
+        "                @@=-:-%@          @@=.-@@@:-@          @@+::-=@@                 ",
+        "                  @@%-.-%@         @@*--%@@@@        @@=..-@@@                   ",
+        "                     @*-.=@@      @#:-..:..:+@@     @+:.-%@                      ",
+        "                      @#-::%@   @@-:..::.+-..=@@   @%::=@@                       ",
+        "                        @*+.=@@@@--.-@#::@@@:.-@@@@=.+#@                         ",
+        "                         @@=::#*:::%@@#:-@@@%::-**::+@                           ",
+        "                          @@*.-+::#@  @--@ @@:::*::#@@                           ",
+        "                         @@=-*::#@@   @--@  @@#+::%-:-@@                         ",
+        "                       @@-..:#@:.*@@  @=:@  @@-.:#@#:..=@                        ",
+        "                      @@-.:#@@@#:.:%@ @#:@@@@-.:+@ @@*..=@                       ",
+        "                     @@-.:%@   @=:.-@@@@:@@@+.:=@    @#:.+@@                     ",
+        "               #@@ @@#-.:#@    @@-:.-@@@:@@*.:-@@     @*:.-*@@@@=%               ",
+        "              @::##*-::-@@      @%::.*@@+@+::-@@       @%--:.::..+@              ",
+        "              @@=---%@@@         @@-..#@@#:.-#@           @@+:-=@@               ",
+        "                @@@@              @=-.-@@-.-*@                                    ",
+        "                                   @=:.*%.-=@                                     ",
+        "                                   @#=.:=::@@                                     ",
+        "                                    @+:.:-#@                                      ",
+        "                                     @=.:-@                                       ",
+        "                                     @@=-#@                                       ",
+        "                                      @%=@"
+    };
+    int lines = sizeof(art) / sizeof(art[0]);
+    int maxLen = 0;
+    for (int i = 0; i < lines; i++) {
+        int len = strlen(art[i]);
+        if (len > maxLen) maxLen = len;
+    }
+    int tile = 2;
+    int w = maxLen * tile;
+    int h = lines * tile;
+    int maxW = tftWidth - 20;
+    int maxH = tftHeight - 45;
+    if (w > maxW) {
+        tile = maxW / maxLen;
+        if (tile < 1) tile = 1;
+        w = maxLen * tile;
+    }
+    if (h > maxH) {
+        int ty = maxH / lines;
+        if (ty < 1) ty = 1;
+        tile = tile < ty ? tile : ty;
+        h = lines * tile;
+    }
+    int x0 = (tftWidth - w) / 2;
+    int y0 = 45 + ((tftHeight - 45 - h) / 2);
+    for (int i = 0; i < lines; ++i) {
+        const char *line = art[i];
+        int len = strlen(line);
+        for (int j = 0; j < len; ++j) {
+            char c = line[j];
+            if (c != ' ') tft.fillRect(x0 + j * tile, y0 + i * tile, tile, tile, bruceConfig.priColor);
+        }
+    }
 }
 
 /*********************************************************************
@@ -252,10 +331,12 @@ void boot_screen_anim() {
     int boot_img = 0;
     bool drawn = false;
     if (sdcardMounted) {
-        if (SD.exists("/boot.jpg")) boot_img = 1;
+        if (SD.exists("/boot.png")) boot_img = 6;
+        else if (SD.exists("/boot.jpg")) boot_img = 1;
         else if (SD.exists("/boot.gif")) boot_img = 3;
     }
-    if (boot_img == 0 && LittleFS.exists("/boot.jpg")) boot_img = 2;
+    if (boot_img == 0 && LittleFS.exists("/boot.png")) boot_img = 7;
+    else if (boot_img == 0 && LittleFS.exists("/boot.jpg")) boot_img = 2;
     else if (boot_img == 0 && LittleFS.exists("/boot.gif")) boot_img = 4;
     if (bruceConfig.theme.boot_img) boot_img = 5; // override others
 
@@ -288,6 +369,12 @@ void boot_screen_anim() {
                 } else if (boot_img == 4) {
                     drawImg(LittleFS, "/boot.gif", 0, 0, true, 3600);
                     Serial.println("Image from LittleFS");
+                } else if (boot_img == 6) {
+                    drawImg(SD, "/boot.png", 0, 0, true);
+                    Serial.println("Image from SD");
+                } else if (boot_img == 7) {
+                    drawImg(LittleFS, "/boot.png", 0, 0, true);
+                    Serial.println("Image from LittleFS");
                 }
                 tft.drawPixel(0, 0, 0); // Forces back communication with TFT, to avoid ghosting
             }
@@ -298,27 +385,15 @@ void boot_screen_anim() {
             tft.drawRect(2 * tftWidth / 3, tftHeight / 2, 2, 2, bruceConfig.priColor);
         if (!boot_img && (millis() - i > 2700) && (millis() - i) < 2900)
             tft.fillRect(0, 45, tftWidth, tftHeight - 45, bruceConfig.bgColor);
-        if (!boot_img && (millis() - i > 2900) && (millis() - i) < 3400)
-            tft.drawXBitmap(
-                2 * tftWidth / 3 - 30,
-                5 + tftHeight / 2,
-                bruce_small_bits,
-                bruce_small_width,
-                bruce_small_height,
-                bruceConfig.bgColor,
-                bruceConfig.priColor
-            );
+        if (!boot_img && (millis() - i > 2900) && (millis() - i) < 3400) {
+            tft.fillRect(0, 45, tftWidth, tftHeight - 45, bruceConfig.bgColor);
+            drawCalyAsciiArt();
+        }
         if (!boot_img && (millis() - i > 3400) && (millis() - i) < 3600) tft.fillScreen(bruceConfig.bgColor);
-        if (!boot_img && (millis() - i > 3600))
-            tft.drawXBitmap(
-                (tftWidth - 238) / 2,
-                (tftHeight - 133) / 2,
-                bits,
-                bits_width,
-                bits_height,
-                bruceConfig.bgColor,
-                bruceConfig.priColor
-            );
+        if (!boot_img && (millis() - i > 3600)) {
+            tft.fillRect(0, 45, tftWidth, tftHeight - 45, bruceConfig.bgColor);
+            drawCalyAsciiArt();
+        }
 #endif
         if (check(AnyKeyPress)) // If any key or M5 key is pressed, it'll jump the boot screen
         {
@@ -449,6 +524,8 @@ void setup() {
     init_led();
 
     options.reserve(20); // preallocate some options space to avoid fragmentation
+
+    if (bruceConfig.powerSaveEnabled) powerSaveOn();
 
     // Set WiFi country to avoid warnings and ensure max power
     const wifi_country_t country = {

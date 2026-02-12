@@ -59,7 +59,7 @@ const Dialog = {
   loading: {
     show: function (message) {
       $(".loading-area").classList.remove("hidden");
-      $(".loading-area .text").textContent = message || "Loading...";
+      $(".loading-area .text").textContent = message || "Carregando...";
     },
     hide: function () {
       $(".loading-area").classList.add("hidden");
@@ -68,29 +68,29 @@ const Dialog = {
   showOneInput: function (name, inputVal, data) {
     const dbForm = {
       renameFolder: {
-        title: "Rename Folder: " + inputVal,
-        label: `New Folder Name:`,
-        action: "Rename"
+        title: "Renomear Pasta: " + inputVal,
+        label: `Novo nome da pasta:`,
+        action: "Renomear"
       },
       renameFile: {
-        title: "Rename File: " + inputVal,
-        label: `New File Name:`,
-        action: "Rename"
+        title: "Renomear Arquivo: " + inputVal,
+        label: `Novo nome do arquivo:`,
+        action: "Renomear"
       },
       createFolder: {
-        title: "Create Folder",
-        label: `Folder Name:`,
-        action: "Create Folder"
+        title: "Criar Pasta",
+        label: `Nome da pasta:`,
+        action: "Criar pasta"
       },
       createFile: {
-        title: "Create File",
-        label: `File Name:`,
-        action: "Create File"
+        title: "Criar Arquivo",
+        label: `Nome do arquivo:`,
+        action: "Criar arquivo"
       },
       serial: {
-        title: "Serial Command",
-        label: `Command:`,
-        action: "Run"
+        title: "Comando Serial",
+        label: `Comando:`,
+        action: "Executar"
       }
     };
 
@@ -114,7 +114,7 @@ const Dialog = {
 };
 
 function handleAuthError() {
-  if (confirm("Session expired or unauthorized. Would you like to go to the login page?")) {
+  if (confirm("Sessão expirada ou não autorizada. Deseja ir para a página de login?")) {
     window.location.href = "/";
   } else {
     Dialog.loading.hide();
@@ -136,13 +136,13 @@ async function requestGet(url, data) {
         resolve(req.responseText);
       } else if (req.status === 401) {
         handleAuthError();
-        reject(new Error(`Unauthorized access (401)`));
+        reject(new Error(`Acesso não autorizado (401)`));
       } else {
-        reject(new Error(`Request failed with status ${req.status}`));
+        reject(new Error(`Falha na requisição com status ${req.status}`));
       }
     };
     req.onerror = () => {
-      reject(new Error("Network error"))
+      reject(new Error("Erro de rede"))
     };
     req.send();
   });
@@ -164,12 +164,12 @@ async function requestPost(url, data) {
         resolve(req.responseText);
       } else if (req.status === 401) {
         handleAuthError();
-        reject(new Error(`Unauthorized access (401)`));
+        reject(new Error(`Acesso não autorizado (401)`));
       } else {
-        reject(new Error(`Request failed with status ${req.status}`));
+        reject(new Error(`Falha na requisição com status ${req.status}`));
       }
     };
-    req.onerror = () => reject(new Error("Network error"));
+    req.onerror = () => reject(new Error("Erro de rede"));
     req.send(fd);
   });
 }
@@ -266,11 +266,11 @@ async function uploadFile() {
 }
 
 async function runCommand(cmd) {
-  Dialog.loading.show('Running command...');
+  Dialog.loading.show('Executando comando...');
   try {
     await requestPost("/cm", { cmnd: cmd });
   } catch (error) {
-    alert("Failed to run command: " + error.message);
+    alert("Falha ao executar comando: " + error.message);
   } finally {
     Dialog.loading.hide();
   }
@@ -430,7 +430,7 @@ async function fetchFiles(drive, path) {
 }
 
 async function fetchSystemInfo() {
-  Dialog.loading.show('Fetching system info...');
+  Dialog.loading.show('Obtendo informações do sistema...');
   let req = await requestGet("/systeminfo");
   let info = JSON.parse(req);
   $(".bruce-version").textContent = info.BRUCE_VERSION;
@@ -441,7 +441,7 @@ async function fetchSystemInfo() {
 }
 
 async function saveEditorFile(runFile = false) {
-  Dialog.loading.show('Saving...');
+  Dialog.loading.show('Salvando...');
   let editor = $(".dialog.editor .file-content");
   let filename = $(".dialog.editor .editor-file-name").textContent.trim();
   if (isModified(editor)) {
@@ -484,7 +484,7 @@ async function runNavigation(direction) {
     await requestPost("/cm", { cmnd: `nav ${direction.toLowerCase()}` });
     await reloadScreen();
   } catch (error) {
-    alert("Failed to run command: " + error.message);
+    alert("Falha ao executar comando: " + error.message);
     console.error(error)
   } finally {
     SCREEN_NAVIGATING = false;
@@ -504,7 +504,7 @@ async function reloadScreen() {
     await renderTFT(screenData);
   } catch (error) {
     console.error("Failed to reload screen:", error);
-    alert("Failed to reload screen: " + error.message);
+    alert("Falha ao recarregar tela: " + error.message);
   } finally {
     btnForceReload.classList.remove("reloading");
     SCREEN_RELOAD = false;
@@ -916,7 +916,7 @@ $(".container").addEventListener("click", async (e) => {
     editor.value = "";
 
     // Load file content
-    Dialog.loading.show('Fetching content...');
+    Dialog.loading.show('Buscando conteúdo...');
     let r = await requestGet(`/file?fs=${currentDrive}&name=${encodeURIComponent(file)}&action=edit`);
     editor.value = r;
     editor.setAttribute("data-hash", calcHash(r));
@@ -975,7 +975,7 @@ $(".container").addEventListener("click", async (e) => {
 
     if (!confirm(`Are you sure you want to DELETE ${file}?\n\nTHIS ACTION CANNOT BE UNDONE!`)) return;
 
-    Dialog.loading.show('Deleting...');
+    Dialog.loading.show('Excluindo...');
     await requestGet("/file", {
       fs: currentDrive,
       action: 'delete',
@@ -1013,26 +1013,26 @@ $(".act-save-oinput-file").addEventListener("click", async (e) => {
   let fileInput = $("#oinput-input");
   let fileName = fileInput.value.trim();
   if (!fileName) {
-    alert("Filename cannot be empty.");
+      alert("Nome do arquivo não pode ser vazio.");
     return;
   }
   let action = dialog.getAttribute("data-cache");
   if (!action) {
-    alert("No action specified.");
+      alert("Nenhuma ação especificada.");
     return;
   }
 
   let refreshList = true;
   let [actionType, path] = action.split("|");
   if (actionType.startsWith("rename")) {
-    Dialog.loading.show('Renaming...');
+    Dialog.loading.show('Renomeando...');
     await requestPost("/rename", {
       fs: currentDrive,
       filePath: path,
       fileName: fileName
     });
   } else if (actionType === "createFolder") {
-    Dialog.loading.show('Creating Folder...');
+    Dialog.loading.show('Criando pasta...');
     let urlQuery = new URLSearchParams({
       fs: currentDrive,
       action: "create",
@@ -1040,7 +1040,7 @@ $(".act-save-oinput-file").addEventListener("click", async (e) => {
     });
     await requestGet("/file?" + urlQuery.toString());
   } else if (actionType === "createFile") {
-    Dialog.loading.show('Creating File...');
+    Dialog.loading.show('Criando arquivo...');
     let urlQuery = new URLSearchParams({
       fs: currentDrive,
       action: "createfile",
@@ -1048,7 +1048,7 @@ $(".act-save-oinput-file").addEventListener("click", async (e) => {
     });
     await requestGet("/file?" + urlQuery.toString());
   } else if (actionType === "serial") {
-    Dialog.loading.show('Running Serial Command...');
+    Dialog.loading.show('Executando comando serial...');
     await runCommand(fileName);
     refreshList = false; // No need to refresh file list for serial commands
   }
@@ -1065,13 +1065,13 @@ $(".act-save-credential").addEventListener("click", async (e) => {
     return;
   }
 
-  Dialog.loading.show('Saving WiFi Credentials...');
+  Dialog.loading.show('Salvando credenciais do WebUI...');
   await requestGet("/wifi", {
     usr: username,
     pwd: password
   });
   Dialog.loading.hide();
-  alert("Credentials saved successfully!");
+  alert("Credenciais salvas com sucesso!");
 });
 
 $(".act-save-edit-file").addEventListener("click", async (e) => {
@@ -1099,8 +1099,8 @@ function updateShowHideNavigatingButton() {
 
 $(".act-reboot").addEventListener("click", async (e) => {
   e.preventDefault();
-  if (!confirm("Are you sure you want to REBOOT the device?")) return;
-  Dialog.loading.show('Rebooting...');
+  if (!confirm("Tem certeza que deseja REINICIAR o dispositivo?")) return;
+  Dialog.loading.show('Reiniciando...');
   await requestGet("/reboot");
   setTimeout(() => {
     location.reload();
@@ -1167,7 +1167,7 @@ window.addEventListener("keydown", async (e) => {
     if ($(".dialog.editor:not(.hidden)")) {
       let editor = $(".dialog.editor .file-content");
       if (isModified(editor)) {
-        if (!confirm("You have unsaved changes. Do you want to discard them?")) {
+        if (!confirm("Você tem alterações não salvas. Deseja descartá-las?")) {
           return;
         }
       }
@@ -1448,7 +1448,7 @@ window.addEventListener('popstate', (event) => {
           $(".dialog.editor .editor-file-name").textContent = event.state.editFile;
           editor.value = "";
 
-          Dialog.loading.show('Fetching content...');
+          Dialog.loading.show('Buscando conteúdo...');
           let r = await requestGet(`/file?fs=${event.state.drive}&name=${encodeURIComponent(event.state.editFile)}&action=edit`);
           editor.value = r;
           editor.setAttribute("data-hash", calcHash(r));
@@ -1487,7 +1487,7 @@ window.addEventListener('popstate', (event) => {
           $(".dialog.editor .editor-file-name").textContent = urlParams.editFile;
           editor.value = "";
 
-          Dialog.loading.show('Fetching content...');
+          Dialog.loading.show('Buscando conteúdo...');
           let r = await requestGet(`/file?fs=${drive}&name=${encodeURIComponent(urlParams.editFile)}&action=edit`);
           editor.value = r;
           editor.setAttribute("data-hash", calcHash(r));
@@ -1543,7 +1543,7 @@ window.addEventListener('popstate', (event) => {
         editor.value = "";
 
         // Load file content
-        Dialog.loading.show('Fetching content...');
+        Dialog.loading.show('Buscando conteúdo...');
         let r = await requestGet(`/file?fs=${currentDrive}&name=${encodeURIComponent(editFile)}&action=edit`);
         editor.value = r;
         editor.setAttribute("data-hash", calcHash(r));
