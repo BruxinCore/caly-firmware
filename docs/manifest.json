@@ -1,0 +1,14 @@
+{
+  "name": "CalyStick Firmware",
+  "version": "1.0.0",
+  "home_assistant_domain": "caly",
+  "funding_url": "https://github.com/BruxinCore/caly-firmware",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "calystick.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

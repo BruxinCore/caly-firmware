@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalador CalyStick</title>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <style>
+        :root {
+            --primary: #b026ff;
+            --secondary: #4c1d95;
+            --bg-deep: #0f0518;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-dim: #a78bfa;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .aurora-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #000000 100%);
+            overflow: hidden;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+            border-radius: 50%;
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--secondary); animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: var(--primary); animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #5b21b6; animation-delay: -2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176, 38, 255, 0.5), transparent);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #d8b4fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        p {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .install-wrapper {
+            display: inline-block;
+            position: relative;
+            z-index: 10;
+        }
+
+        esp-web-install-button {
+            --esp-tools-button-border-radius: 12px;
+            --esp-tools-button-color: #fff;
+            --esp-tools-button-text-color: #fff;
+            --esp-tools-button-background-color: var(--primary);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.4);
+            transition: transform 0.2s;
+        }
+
+        esp-web-install-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.6);
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover { color: #fff; }
+
+        .agpl-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="aurora-bg">
+        <div class="aurora-blob blob-1"></div>
+        <div class="aurora-blob blob-2"></div>
+        <div class="aurora-blob blob-3"></div>
+    </div>
+
+    <div class="card">
+        <h1>CalyStick</h1>
+        <p>
+            Firmware avançado para M5StickC Plus2.<br>
+            Protocolos IR corrigidos • BLE Agressivo • PT-BR
+        </p>
+
+        <div class="install-wrapper">
+            <esp-web-install-button
+                manifest="manifest.json"
+            >
+                <button slot="activate" style="
+                    background: #b026ff;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    box-shadow: 0 0 15px rgba(176,38,255,0.5);
+                ">
+                    CONECTAR DISPOSITIVO
+                </button>
+            </esp-web-install-button>
+        </div>
+
+        <div class="footer">
+            <p>Conecte seu M5Stick via USB. Compatível com Chrome/Edge.</p>
+            <div class="agpl-badge">Based on Bruce • AGPL-3.0 License</div>
+            <br><br>
+            <a href="https://github.com/BruxinCore/caly-firmware" target="_blank">Ver código no GitHub</a>
+        </div>
+    </div>
+
+</body>
+</html>
