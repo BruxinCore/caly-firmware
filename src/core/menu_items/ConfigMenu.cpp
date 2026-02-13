@@ -157,13 +157,17 @@ void ConfigMenu::systemMenu() {
     while (true) {
         std::vector<Option> localOptions = {
             {"Language", [this]() { languageMenu(); }},
-            {String("InstaBoot: ") + (bruceConfig.instantBoot ? "ON" : "OFF"),
+            {String(tr("InstaBoot")) + String(": ") +
+                 (bruceConfig.language == 1 ? (bruceConfig.instantBoot ? "LIG" : "DES")
+                                            : (bruceConfig.instantBoot ? "ON" : "OFF")),
              [this]() {
                  // Toggle InstaBoot setting
                  bruceConfig.instantBoot = !bruceConfig.instantBoot;
                  bruceConfig.saveFile();
              }                                                                                                           },
-            {String("WiFi Startup: ") + (bruceConfig.wifiAtStartup ? "ON" : "OFF"),
+            {String(tr("WiFi Startup")) + String(": ") +
+                 (bruceConfig.language == 1 ? (bruceConfig.wifiAtStartup ? "LIG" : "DES")
+                                            : (bruceConfig.wifiAtStartup ? "ON" : "OFF")),
              [this]() {
                  // Toggle WiFi at startup setting
                  bruceConfig.wifiAtStartup = !bruceConfig.wifiAtStartup;

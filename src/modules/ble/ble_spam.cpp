@@ -492,7 +492,62 @@ void spamMenu() {
     options.push_back({"Android Spam", lambdaHelper(aj_adv, 4)});
     options.push_back({"Spam All", lambdaHelper(aj_adv, 5)});
     options.push_back({"Spam Custom", lambdaHelper(aj_adv, 6)});
+    options.push_back({"Beacon Studio", [=]() { beaconStudio(); }});
     options.push_back({"Back", []() { returnToMenu = true; }});
 
     loopOptions(options, MENU_TYPE_SUBMENU, "Bluetooth Spam");
+}
+
+void beaconStudio() {
+    if (bruceConfig.powerSaveEnabled) {
+        displayRedStripe("Economia ON - Desative para usar BLE", bruceConfig.priColor, bruceConfig.bgColor);
+        vTaskDelay(600 / portTICK_PERIOD_MS);
+        return;
+    }
+
+    String name = keyboard("", 20, "BLE Name");
+    if (name == "\x1B") return;
+    String manHex = keyboard("4C00", 6, "ManufacturerId HEX");
+    if (manHex == "\x1B") return;
+
+    uint32_t manId = strtoul(manHex.c_str(), NULL, 16);
+    uint8_t manL = (uint8_t)(manId & 0xFF);
+    uint8_t manH = (uint8_t)((manId >> 8) & 0xFF);
+
+    uint8_t payload[10];
+    payload[0] = manL;
+    payload[1] = manH;
+    esp_fill_random(&payload[2], 8);
+
+    BLEDevice::init(name.c_str());
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, MAX_TX_POWER);
+    pAdvertising = BLEDevice::getAdvertising();
+
+    BLEAdvertisementData adv;
+    adv.setFlags(0x06);
+    adv.setName(name.c_str());
+    adv.setManufacturerData(std::string((const char *)payload, sizeof(payload)));
+    pAdvertising->setAdvertisementData(adv);
+
+    drawMainBorderWithTitle("Beacon Studio");
+    padprintln("");
+    padprintln("Name: " + name);
+    padprintln("Mfr: 0x" + String(manHex));
+    padprintln("");
+    padprintln("Press Any key to STOP.");
+
+    while (!check(AnyKeyPress)) {
+        pAdvertising->start();
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pAdvertising->stop();
+        vTaskDelay(50 / portTICK_PERIOD_MS);
+    }
+
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+#if defined(CONFIG_IDF_TARGET_ESP32C5)
+    esp_bt_controller_deinit();
+#else
+    BLEDevice::deinit();
+#endif
 }

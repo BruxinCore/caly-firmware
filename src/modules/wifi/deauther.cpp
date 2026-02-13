@@ -80,8 +80,11 @@ bool tryMonitorMode(uint8_t channel) {
         return false;
     }
     
-    // Slight power increase for better range
-    esp_wifi_set_max_tx_power(78);
+    if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO) {
+        esp_wifi_set_max_tx_power(80);
+    } else {
+        esp_wifi_set_max_tx_power(78);
+    }
     
     Serial.printf("[DEAUTH] Using enhanced mode on CH%d\n", channel);
     return true;

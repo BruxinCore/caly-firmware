@@ -3,6 +3,7 @@
 #include "core/utils.h"
 #include <WiFi.h>
 #include "esp_mac.h"
+#include "esp_gap_ble_api.h"
 #define SERVICE_UUID "1bc68b2a-f3e3-11e9-81b4-2a2ae2dbcce4"
 #define CHARACTERISTIC_RX_UUID "1bc68da0-f3e3-11e9-81b4-2a2ae2dbcce4"
 #define CHARACTERISTIC_TX_UUID "1bc68efe-f3e3-11e9-81b4-2a2ae2dbcce4"
@@ -86,6 +87,10 @@ class AdvertisedDeviceCallbacks : public NimBLEAdvertisedDeviceCallbacks {
 
 void ble_scan_setup() {
     BLEDevice::init("");
+    if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO) {
+        esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9);
+        esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_SCAN, ESP_PWR_LVL_P9);
+    }
     pBLEScan = BLEDevice::getScan();
 #ifdef NIMBLE_V2_PLUS
     pBLEScan->setScanCallbacks(new NimBLEScanCallbacks());
@@ -183,6 +188,10 @@ bool initBLEServer() {
     String blename = "Bruce-" + String((uint8_t)(chipid >> 32), HEX);
 
     BLEDevice::init(blename.c_str());
+    if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO) {
+        esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9);
+        esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
+    }
     // BLEDevice::setPower(ESP_PWR_LVL_N12);
     pServer = BLEDevice::createServer();
 

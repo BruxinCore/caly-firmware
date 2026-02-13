@@ -839,6 +839,29 @@ void drawStatusBar() {
         tft.drawLine(cx - 2, cy + 3, cx + 3, cy - 3, bruceConfig.priColor);
         i++;
     }
+    if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_BALANCEADO) {
+        int x = tftWidth - (bat_margin + 23 * i);
+        int y = 7;
+        tft.fillRect(x, y, 16, 16, bruceConfig.bgColor);
+        uint16_t c = bruceConfig.priColor;
+        tft.drawLine(x + 8, y + 3, x + 8, y + 13, c);
+        tft.drawLine(x + 4, y + 6, x + 12, y + 6, c);
+        tft.drawLine(x + 5, y + 6, x + 3, y + 9, c);
+        tft.drawLine(x + 11, y + 6, x + 13, y + 9, c);
+        tft.fillTriangle(x + 1, y + 9, x + 5, y + 9, x + 3, y + 12, c);
+        tft.fillTriangle(x + 11, y + 9, x + 15, y + 9, x + 13, y + 12, c);
+        tft.drawLine(x + 4, y + 14, x + 12, y + 14, c);
+        i++;
+    } else if (bruceConfig.modeActive && bruceConfig.modeProfile == MODE_AGRESSIVO) {
+        int x = tftWidth - (bat_margin + 23 * i);
+        int y = 7;
+        tft.fillRect(x, y, 16, 16, bruceConfig.bgColor);
+        uint16_t c = bruceConfig.priColor;
+        tft.drawWideLine(x + 6, y + 3, x + 12, y + 7, 3, c, bruceConfig.bgColor);
+        tft.drawWideLine(x + 12, y + 7, x + 8, y + 11, 3, c, bruceConfig.bgColor);
+        tft.drawWideLine(x + 8, y + 11, x + 13, y + 13, 3, c, bruceConfig.bgColor);
+        i++;
+    }
 
     if (bruceConfig.theme.border) {
         tft.drawRoundRect(5, 5, tftWidth - 10, tftHeight - 10, 5, bruceConfig.priColor);
@@ -854,7 +877,8 @@ void drawStatusBar() {
 #else
         updateTimeStr(rtc.getTimeStruct());
 #endif
-        tft.print(timeStr);
+        String hhmm = String(timeStr).substring(0, 5);
+        tft.print(hhmm);
     } else {
         setTftDisplay(12, 12, bruceConfig.priColor, 1, bruceConfig.bgColor);
         tft.print("Caly " + String(BRUCE_VERSION));
